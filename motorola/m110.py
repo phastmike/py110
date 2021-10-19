@@ -1,63 +1,15 @@
-"""EEPROM Emulation
-    - Implements Sequencial read/write
-    - Implements byte read/write at given location
-
-    We don't initialize the eeprom to the default 0xFF on all bytes
-    because our particular case has all bytes to 0x00 by default so
-    it would be lost time to be changing bytes to 0xFF and right
-    back to 0X00, but for generalization it would be required tough.
+"""MOTOROLA Radius M110  Emulation
+    
+    WiP
+    Reads binary files, can call methods on instance and output binary data to file
 
     2021 José Miguel Fonte
 """
 
 import math
 import enum
+from . import eeprom as device
 
-class EEPROM:
-    VERSION = "0.0.1"
-
-    def __init__(self, size_in_bytes=128):
-        """Initialize.
-
-        Args:
-            size_in_bytes (int, optional): The eeprom size in bytes, not bits, eg. 1k = 128 bytes)
-            if no size is defined, default size is 1k (128 bytes)
-        """
-        self.__offset = 0
-        self.__nbytes = size_in_bytes
-        self.mem = bytearray(self.__nbytes)
-
-    def reset(self):
-        self.__offset = 0
-
-    def offset_inc(self):
-        self.__offset += 1
-        if self.__offset >= self.__nbytes:
-            self.reset()
-        
-    def read(self):
-        val = self.mem[self.offset]
-        self.offset_inc()
-        return val
-    
-    def write(self, value):
-        self.mem[self.offset] = value
-        self.offset_inc()
-        
-    def read_byte(self, address):
-        if address >= 0 and address < self.__nbytes:
-            self.__offset = address
-            self.offset_inc()
-            return self.mem[address]
-        else:
-            return None
-
-    def write_byte(self, address, value):
-        if value >= 0 and value < 255 and address >= 0 and address < self.__nbytes:
-            self.__offset = address
-            self.write(value)
-            self.offset_inc()
-    
 class TxAdmit(enum.Enum):
     MONITOR = 0
     ALWAYS = 4
@@ -81,7 +33,7 @@ class Power(enum.Enum):
     LOW = 0
     HIGH = 1
 
-class M110EEPROM(EEPROM):
+class m110(device.eeprom):
     EEPROM_SIZE = 128
     CHECKSUM_INDEX = 0x0F
     CH1_INDEX = 0x1B
@@ -94,7 +46,7 @@ class M110EEPROM(EEPROM):
     RX_FI = 21.4
     
     def __init__(self):
-        super(M110EEPROM, self).__init__(self.EEPROM_SIZE)
+        super(m110, self).__init__(self.EEPROM_SIZE)
         
     def setup_from_bytes(self, eeprom_bytes):
         if len(eeprom_bytes) == self.EEPROM_SIZE:
@@ -322,6 +274,13 @@ class M110EEPROM(EEPROM):
     def get_serial(self):
         return bytes(self.mem[0:10])
 
+    def get_serial_as_string(self):
+        try:
+            serial = bytes(self.mem[0:10]).decode("utf-8")
+        except UnicodeDecodeError as error:
+            return "Invalid serial" 
+        return serial
+
     def set_serial(self, serial):
         if (len(serial) != 10):
             return
@@ -342,7 +301,8 @@ class M110EEPROM(EEPROM):
 
     def show_info(self):
         print ('============================ M110 ============================')
-        print ('SERIAL   : %s' % self.get_serial().decode("utf-8"))
+        #print ('SERIAL   : %s' % self.get_serial().decode("utf-8"))
+        print ('SERIAL   : %s' % self.get_serial_as_string())
         print ('BAND     : %s' % self.get_band())
         print ('BANDWIDTH: %s' % self.get_channel_spacing())
         print ('POWER    : %s' % self.get_power())
@@ -352,7 +312,8 @@ class M110EEPROM(EEPROM):
         print ('==============================================================')
         print ('CH.1  RX : %.05f MHz (%.1f Hz) TX: %.05f MHz (%.1f Hz)' % (self.get_rx_freq(self.CH1_INDEX), self.get_rx_ctcss(self.CH1_INDEX), self.get_tx_freq(self.CH1_INDEX), self.get_tx_ctcss(self.CH1_INDEX)))
         print ('         : ClockShift %d Monitor %d %s' % (self.get_clock_shift(self.CH1_INDEX), self.get_monitor_enable(self.CH1_INDEX), self.get_tx_admit(self.CH1_INDEX)))
-        print ('')
+        #print ('')
+        print ('==============================================================')
         print ('CH.2  RX : %.05f MHz (%.1f Hz) TX: %.05f MHz (%.1f Hz)' % (self.get_rx_freq(self.CH2_INDEX), self.get_rx_ctcss(self.CH2_INDEX), self.get_tx_freq(self.CH2_INDEX), self.get_tx_ctcss(self.CH2_INDEX)))
         print ('         : ClockShift %d Monitor %d %s' % (self.get_clock_shift(self.CH2_INDEX), self.get_monitor_enable(self.CH2_INDEX), self.get_tx_admit(self.CH2_INDEX)))
         print ('==============================================================')

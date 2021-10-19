@@ -5,7 +5,7 @@
 """
 
 import sys
-from eeprom import *
+from motorola import m110 as radius 
 
 if len(sys.argv) != 2:
     print ("Usage: %s <filename>" % sys.argv[0])
@@ -15,10 +15,10 @@ file = sys.argv[1]
 
 print("")
 print("- Loading eeprom from binary file '%s'" % file)
-m110 = M110EEPROM()
-m110.setup_from_file(file)
+radio = radius.m110()
+radio.setup_from_file(file)
 
-# Show eeprom content Show eeprom contentss 
+# Show eeprom content
 print("")
-m110.show_info()
+radio.show_info()
 print("")

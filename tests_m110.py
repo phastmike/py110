@@ -4,7 +4,7 @@
     2021 CT1ENQ
 """
 
-from eeprom import *
+from motorola import m110 as radius
 
 def sweep_tones_test(m110):
     print("- Sweep set and test all ctcss tones")
@@ -122,7 +122,7 @@ def test_tx_admit(m119):
     ok = 0
     failed = 0
     print("- Test CH1 and CH2 TxAdmit") 
-    for val in TxAdmit:
+    for val in radius.TxAdmit:
         m110.set_tx_admit(m110.CH1_INDEX, val)
         if (m110.get_tx_admit(m110.CH1_INDEX) == val):
             ok += 1
@@ -144,8 +144,8 @@ def test_tx_admit(m119):
 #SETUP
 print("")
 print("- Setup")
-m110 = M110EEPROM()
-file = '24c01_CP_01.bin'
+m110 = radius.m110()
+file = './eeprom_binaries/24c01_CP_01.bin'
 print("   from file '%s'" % file)
 m110.setup_from_file(file)
 
