@@ -35,7 +35,7 @@ def sweep_tones_test(m110):
 
     # CHANNEL 1
     for tone in ctcss_list:
-        #print ("- Checking tone ", tone)
+        print ("- Checking tone ", tone)
         m110.set_rx_ctcss(m110.CH1_INDEX, tone)
         ctone = m110.get_rx_ctcss(m110.CH1_INDEX)
         if (tone == ctone):
@@ -44,15 +44,16 @@ def sweep_tones_test(m110):
         else:
             result = "FAIL"
             failed += 1
-        #print("   RX => Wrote %.1f = Read %.1f ? %s" % (tone, ctone, result))
+        print("   RX => Wrote %.1f = Read %.1f ? %s" % (tone, ctone, result))
         m110.set_tx_ctcss(m110.CH1_INDEX, tone)
-        ctone = m110.get_rx_ctcss(m110.CH1_INDEX)
+        ctone = m110.get_tx_ctcss(m110.CH1_INDEX)
         if (tone == ctone):
             result = "OK"
             ok += 1
         else:
             result = "FAIL"
             failed += 1
+        print("   TX => Wrote %.1f = Read %.1f ? %s" % (tone, ctone, result))
 
     # CHANNEL 2
     for tone in ctcss_list:
