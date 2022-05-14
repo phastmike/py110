@@ -101,7 +101,8 @@ Runs tests on motorola python class located in motorola folder.
 
 ## eeprom_binaries folder
 
-This folder contains some eeprom binaries, some read from radio some generated.
+This folder contains some eeprom binaries, some read from the radio, some generated.
+
 It may also include header files generated with `eeprom2cheader.py`.
 
 ## motorola folder
